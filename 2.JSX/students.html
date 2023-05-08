@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td,
+        th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+</body>
+<script type="text/babel">
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    const students = [
+        {
+            company: 'Alfreds Futterkiste',
+            contact: 'Maria Anders',
+            country: 'Germany'
+        },
+        {
+            company: 'Centro comercial Moctezuma',
+            contact: 'Francisco Chang',
+            country: 'Mexico'
+        },
+        {
+            company: 'Ernst Handel',
+            contact: 'Roland Mendel',
+            country: 'Austria'
+        },
+        {
+            company: 'Island Trading',
+            contact: 'Helen Bennett',
+            country: 'UK'
+        },
+        {
+            company: 'Laughing Bacchus Winecellars',
+            contact: 'Yoshi Tannamuri',
+            country: 'Canada'
+        },
+        {
+            company: 'Magazzini Alimentari Riuniti',
+            contact: 'Giovanni Rovelli',
+            country: 'Italy'
+        }
+    ];
+    const Students = <div>
+        {students.map(student => (
+            <tr>
+                <td>{student.company}</td>
+                <td>{student.contact}</td>
+                <td>{student.country}</td>
+            </tr>
+        ))}
+    </div>
+
+    root.render(Students);
+</script>
+
+</html>
