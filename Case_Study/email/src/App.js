@@ -5,9 +5,10 @@ import Login from './component/general/Login';
 
 import Home from './component/home/Home';
 import { BrowserRouter as Routers } from 'react-router-dom';
-import { loginWithCookieApi } from './redux/generalSlice';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadingStateSelector, userSelector } from './redux/selectors';
+import { loginWithCookieApi } from './redux/generalSlice';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
