@@ -1,4 +1,6 @@
 import logo from "../../assets/images/paw.png";
+import { Search } from './Search';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { userSelector } from '../../redux/selectors';
 import generalSlice from '../../redux/generalSlice';
@@ -18,14 +20,7 @@ export default function Header() {
             <span className="text-bold ps-1">{user.email}</span>
         </div>
         <div className="d-flex align-items-center w-500">
-            <div className="position-relative" style={{ width: "450px" }}>
-                <input className="form-control" />
-                <div className="bg-white w-100 position-absolute">
-                    Search
-                    <br/>
-                    Search 2
-                </div>
-            </div>
+            <Search />
             <a href="#" className="text-white me-0"><i className="fa-solid fa-gear ps-3"></i></a>
             <button className="btn text-white" onClick={e => logout(e)}><i className=" fa-solid fa-right-from-bracket px-3"></i></button>
         </div >

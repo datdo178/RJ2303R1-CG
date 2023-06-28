@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
-import { FOLDER_IDS, URLS } from '../constants';
+import { FOLDER_IDS, MAX_SEARCH_RESULT_QUANTITY, URLS } from '../constants';
 import { deleteCookie, setCookie } from '../assets/js/actions';
 import { sprintf } from 'sprintf-js';
 
@@ -93,6 +93,27 @@ const generalSlice = createSlice({
         },
         changeComposeOpenState: (state) => {
             state.compose.isOpen = !state.compose.isOpen;
+        },
+        changeSearchKeyword: (state, action) => {
+            state.search.keyword = action.payload;
+            const results = []
+
+            for (const mail of state.mail.list) {
+                if (
+                    state.search.keyword &&
+                    (mail.from.includes(state.search.keyword)
+                    || mail.title.includes(state.search.keyword)
+                    || mail.content.includes(state.search.keyword))
+                ) {
+                    results.push(mail);
+                }
+
+                if (results.length >= MAX_SEARCH_RESULT_QUANTITY) {
+                    break;
+                }
+            }
+
+            state.search.results = results;
         }
     },
     extraReducers: builder => {

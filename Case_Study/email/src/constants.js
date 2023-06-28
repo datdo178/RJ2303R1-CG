@@ -22,3 +22,5 @@ export const FOLDER_IDS = {
     DELETE: "4",
     STAR: "5"
 }
+
+export const MAX_SEARCH_RESULT_QUANTITY = 10;
