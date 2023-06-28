@@ -127,6 +127,10 @@ body {
   overflow: scroll;
 }
 
+#mail-list-table table {
+  --bs-table-bg: none;
+}
+
 .flag {
   top: 30%;
   left: -15px;

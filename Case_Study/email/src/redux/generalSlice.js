@@ -22,7 +22,8 @@ const generalSlice = createSlice({
         mail: {
             quantityPerPage: 10,
             selected: {},
-            list: []
+            list: [],
+            filterByFolder: {}
         },
         compose: {
             isOpen: false,
@@ -60,6 +61,17 @@ const generalSlice = createSlice({
             state.user.displayName = action.payload.displayName;
             state.user.dataUrl = action.payload.dataUrl;
         },
+        setSelectedFolderId: (state, action) => {
+            state.folder.selectedId = action.payload;
+        },
+        filterMailByFolder: (state) => {
+            state.mail.filterByFolder = {}
+            for (const folder of state.folder.list) {
+                state.mail.filterByFolder[folder.id] = folder.id !== FOLDER_IDS.STAR
+                    ? state.mail.list.filter(mail => mail.id === folder.id)
+                    : state.mail.list.filter(mail => mail.isFlagged)
+            }
+        },
         selectMail: (state, action) => {
             state.mail.selected = action.payload;
         },
@@ -88,68 +100,88 @@ const generalSlice = createSlice({
             // loginApi
             .addCase(loginApi.pending, state => { state.isLoading = true })
             .addCase(loginApi.fulfilled, (state, action) => {
-                state.user.email = action.payload.user.email;
-                state.user.displayName = action.payload.user.displayName;
-                state.user.dataUrl = action.payload.user.dataUrl;
-
+                state.user = action.payload.user
                 state.folder.list = action.payload.folderList;
                 state.mail.list = action.payload.mailList;
-
+                state.mail.filterByFolder = action.payload.filterByFolder;
                 state.isLoading = false
             })
             .addCase(loginApi.rejected, state => { state.isLoading = false })
             // loginWithCookie
             .addCase(loginWithCookieApi.pending, state => { state.isLoading = true })
             .addCase(loginWithCookieApi.fulfilled, (state, action) => {
-                state.isLoading = false
-
-                state.user.email = action.payload.user.email;
-                state.user.displayName = action.payload.user.displayName;
-                state.user.dataUrl = action.payload.user.dataUrl;
-
+                state.user = action.payload.user
                 state.folder.list = action.payload.folderList;
                 state.mail.list = action.payload.mailList;
+                state.mail.filterByFolder = action.payload.filterByFolder;
+                state.isLoading = false
             })
             .addCase(loginWithCookieApi.rejected, state => { state.isLoading = false })
-            // switchFolder
-            .addCase(switchFolderApi.pending, state => { state.isLoading = true })
-            .addCase(switchFolderApi.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.folder.selectedId = action.payload.folderId;
-                state.mail.list = action.payload.mailList;
-            })
-            .addCase(switchFolderApi.rejected, state => { state.isLoading = false })
+            // // switchFolder
+            // .addCase(switchFolderApi.pending, state => { state.isLoading = true })
+            // .addCase(switchFolderApi.fulfilled, (state, action) => {
+            //     state.isLoading = false;
+            //     state.folder.selectedId = action.payload.folderId;
+            //     state.mail.list = action.payload.mailList;
+            // })
+            // .addCase(switchFolderApi.rejected, state => { state.isLoading = false })
             // changeMailReadState
             .addCase(changeMailReadStateApi.pending, state => { state.isLoading = true })
             .addCase(changeMailReadStateApi.fulfilled, (state, action) => {
+                let index = state.mail.list.findIndex(item => item.id === action.payload.mail.id);
+                state.mail.list[index] = action.payload.mail;
+
+                index = state.mail.filterByFolder[action.payload.folderId].findIndex(item => item.id === action.payload.mail.id);
+                state.mail.filterByFolder[action.payload.folderId][index] = action.payload.mail;
+
                 state.isLoading = false;
-                const index = state.mail.list.findIndex(item => item.id === action.payload.mailId);
-                state.mail.list[index].isRead = action.payload.isRead;
             })
             .addCase(changeMailReadStateApi.rejected, state => { state.isLoading = false })
             // deleteMail
             .addCase(deleteMailApi.pending, state => { state.isLoading = true })
             .addCase(deleteMailApi.fulfilled, (state, action) => {
-                state.isLoading = false;
-                for (const id of action.payload) {
-                    const index = state.mail.list.findIndex(mail => mail.id === id);
-                    if (state.mail.list[index].id === state.mail.selected.id) {
-                        state.mail.selected = {};
-                    }
-                    state.mail.list.splice(index, 1);
+                if (action.payload.mailIds.includes(state.mail.selected.id)) {
+                    state.mail.selected = {};
                 }
+
+                for (const id of action.payload.mailIds) {
+                    state.mail.list = state.mail.list.filter(item => item.id !== id);
+
+                    const removedMail = state.mail.filterByFolder[action.payload.folderId].find(item => item.id === id);
+                    removedMail.isFlagged = false;
+                    state.mail.filterByFolder[action.payload.folderId] = state.mail.filterByFolder[action.payload.folderId].filter(item => item.id !== id);
+
+                    if (action.payload.folderId !== FOLDER_IDS.DELETE) {
+                        const index = state.mail.filterByFolder[FOLDER_IDS.DELETE].findIndex(item => item.id > removedMail.id);
+                        state.mail.filterByFolder[FOLDER_IDS.DELETE].splice(index, 0, removedMail);
+                    }
+                }
+
+                state.isLoading = false;
             })
             .addCase(deleteMailApi.rejected, state => { state.isLoading = false })
             // flagMail
             .addCase(flagMailApi.pending, state => { state.isLoading = true })
             .addCase(flagMailApi.fulfilled, (state, action) => {
-                state.isLoading = false;
-                const index = state.mail.list.findIndex(mail => mail.id === action.payload.mailId);
-                state.mail.list[index].isFlagged = action.payload.isFlagged;
+                const indexList = state.mail.list.findIndex(item => item.id === action.payload.mailId);
+                state.mail.list[indexList].isFlagged = action.payload.isFlagged;
+
+                const indexFilterList = state.mail.filterByFolder[action.payload.folderId].findIndex(item => item.id === action.payload.mailId);
+                state.mail.filterByFolder[action.payload.folderId][indexFilterList].isFlagged = action.payload.isFlagged;
+
+                const indexStar = state.mail.filterByFolder[FOLDER_IDS.STAR].findIndex(item => item.id === action.payload.mailId);
+                if (indexStar === -1 && action.payload.isFlagged) {
+                    const indexToInsert = state.mail.filterByFolder[FOLDER_IDS.STAR].findIndex(item => item.id > action.payload.mailId);
+                    state.mail.filterByFolder[FOLDER_IDS.STAR].splice(indexToInsert, 0, state.mail.list[indexList]);
+                } else if (indexStar > -1 && !action.payload.isFlagged) {
+                    state.mail.filterByFolder[FOLDER_IDS.STAR].splice(indexStar, 1);
+                }
 
                 if (state.mail.selected.id === action.payload.mailId) {
                     state.mail.selected.isFlagged = action.payload.isFlagged;
                 }
+
+                state.isLoading = false;
             })
             .addCase(flagMailApi.rejected, state => { state.isLoading = false })
             // sendMail
@@ -157,13 +189,19 @@ const generalSlice = createSlice({
             .addCase(sendMailApi.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.compose = {
+                    isOpen: false,
+                    id: '',
                     title: '',
                     toAddress: '',
                     content: ''
                 };
 
-                if (state.folder.selectedId === FOLDER_IDS.SENT) {
-                    state.mail.list.push(action.payload);
+                state.mail.list.push(action.payload.mail);
+                state.mail.filterByFolder[FOLDER_IDS.SENT].push(action.payload.mail);
+
+                if (action.payload.id) {
+                    const index = state.mail.filterByFolder[FOLDER_IDS.DRAFT].findIndex(item => item.id === action.payload.id);
+                    state.mail.filterByFolder[FOLDER_IDS.DRAFT].splice(index, 1);
                 }
             })
             .addCase(sendMailApi.rejected, state => { state.isLoading = false })
@@ -178,13 +216,15 @@ const generalSlice = createSlice({
                     content: ''
                 };
 
-                if (state.folder.selectedId === FOLDER_IDS.DRAFT) {
-                    const index = state.mail.list.findIndex(mail => mail.id === action.payload)
-                    if (index > -1) {
-                        state.mail.list[index] = action.payload.data;
-                    } else {
-                        state.mail.list.push(action.payload.data);
-                    }
+                if (!action.payload.id) {
+                    state.mail.list.push(action.payload.mail)
+                    state.mail.filterByFolder[FOLDER_IDS.DRAFT].push(action.payload.mail);
+                } else {
+                    const indexList = state.mail.list.findIndex(item => item.id === action.payload.mail.id);
+                    state.mail.list[indexList] = action.payload.mail;
+
+                    const indexFilterList = state.mail.filterByFolder[FOLDER_IDS.DRAFT].findIndex(item => item.id === action.payload.mail.id);
+                    state.mail.filterByFolder[FOLDER_IDS.DRAFT][indexFilterList] = action.payload.mail;
                 }
             })
             .addCase(saveMailDraftApi.rejected, state => { state.isLoading = false })
@@ -202,14 +242,24 @@ export const loginApi = createAsyncThunk(
 
         res = await axios.get(sprintf(URLS.FOLDERS, loggedUser.dataUrl));
         const folderList = res.data;
+        const mailList = [];
+        const filterByFolder = {};
 
-        res = await axios.get(sprintf(URLS.EMAILS, loggedUser.dataUrl, FOLDER_IDS.DEFAULT));
-        const mailList = res.data;
+        for (const folder of folderList) {
+            if (folder.id !== FOLDER_IDS.STAR) {
+                const res = await axios.get(sprintf(URLS.EMAILS, loggedUser.dataUrl, folder.id));
+                filterByFolder[folder.id] = res.data;
+                mailList.push(...res.data);
+            }
+        }
+
+        filterByFolder[FOLDER_IDS.STAR] = mailList.filter(mail => mail.isFlagged === true);
 
         return {
             user: loggedUser,
             folderList: folderList,
-            mailList: mailList
+            mailList: mailList,
+            filterByFolder: filterByFolder
         };
     }
 )
@@ -218,15 +268,25 @@ export const loginWithCookieApi = createAsyncThunk(
     async(cookieUser) => {
         let res = await axios.get(sprintf(URLS.FOLDERS, cookieUser.dataUrl));
         const folderList = res.data;
+        const mailList = [];
+        const filterByFolder = {};
 
-        res = await axios.get(sprintf(URLS.EMAILS, cookieUser.dataUrl, FOLDER_IDS.DEFAULT));
-        const mailList = res.data;
+        for (const folder of folderList) {
+            if (folder.id !== FOLDER_IDS.STAR) {
+                const res = await axios.get(sprintf(URLS.EMAILS, cookieUser.dataUrl, folder.id));
+                filterByFolder[folder.id] = res.data;
+                mailList.push(...res.data);
+            }
+        }
+
+        filterByFolder[FOLDER_IDS.STAR] = mailList.filter(mail => mail.isFlagged === true);
 
         return {
             user: cookieUser,
             folderList: folderList,
-            mailList: mailList
-        }
+            mailList: mailList,
+            filterByFolder: filterByFolder
+        };
     }
 )
 
@@ -276,7 +336,6 @@ export const getMailListApi = createAsyncThunk(
 export const deleteMailApi = createAsyncThunk(
     'mail/delete',
     async({dataUrl, folderId, mailIds}) => {
-        console.log(typeof folderId);
         if (mailIds.length === 0) {
             return [];
         }
@@ -285,21 +344,25 @@ export const deleteMailApi = createAsyncThunk(
             if (folderId === FOLDER_IDS.DELETE) {
                 await axios.delete(sprintf(URLS.EMAIL, dataUrl, folderId, id))
             } else {
-                await axios.put(sprintf(URLS.EMAIL, dataUrl, folderId, id), { folderId: FOLDER_IDS.DELETE });
+                await axios.put(sprintf(URLS.EMAIL, dataUrl, folderId, id), { folderId: FOLDER_IDS.DELETE, isFlagged: false });
             }
         }
 
-        return mailIds;
+        return {
+            folderId: folderId,
+            mailIds: mailIds
+        };
     }
 )
 
 export const changeMailReadStateApi = createAsyncThunk(
     'mail/changeReadState',
     async ({dataUrl, folderId, mailId, isRead}) => {
-        await axios.put(sprintf(URLS.EMAIL, dataUrl, folderId, mailId), { isRead: isRead });
+        const res = await axios.put(sprintf(URLS.EMAIL, dataUrl, folderId, mailId), { isRead: isRead });
+
         return {
-            mailId: mailId,
-            isRead: isRead
+            folderId: folderId,
+            mail: res.data
         };
     }
 )
@@ -309,6 +372,7 @@ export const flagMailApi = createAsyncThunk(
     async ({dataUrl, folderId, mailId, isFlagged}) => {
         await axios.put(sprintf(URLS.EMAIL, dataUrl, folderId, mailId), { isFlagged: isFlagged });
         return {
+            folderId: folderId,
             mailId: mailId,
             isFlagged: isFlagged
         }
@@ -317,7 +381,7 @@ export const flagMailApi = createAsyncThunk(
 
 export const sendMailApi = createAsyncThunk(
     'mail/send',
-    async({dataUrl, fromAddress, toAddress, title, content}) => {
+    async({dataUrl, fromAddress, toAddress, title, content, id}) => {
         const data = {
             sentTime: new Date().toISOString(),
             from: fromAddress,
@@ -330,7 +394,10 @@ export const sendMailApi = createAsyncThunk(
         }
         const res = await axios.post(sprintf(URLS.EMAILS, dataUrl, FOLDER_IDS.SENT), data);
 
-        return res.data;
+        return {
+            id: id,
+            mail: res.data
+        };
     }
 )
 
@@ -356,7 +423,7 @@ export const saveMailDraftApi = createAsyncThunk(
 
         return {
             id: id,
-            data: res.data
+            mail: res.data
         };
     }
 )

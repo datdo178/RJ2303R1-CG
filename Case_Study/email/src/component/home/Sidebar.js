@@ -3,17 +3,16 @@ import { Link } from 'react-router-dom';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { userSelector, folderSelector, composeSelector } from '../../redux/selectors';
-import generalSlice, { switchFolderApi } from '../../redux/generalSlice';
+import generalSlice from '../../redux/generalSlice';
 import ComposeEmail from './Compose';
 
 export default function SideBar() {
     const dispatch = useDispatch();
-    const user = useSelector(userSelector);
     const folder = useSelector(folderSelector);
     const compose = useSelector(composeSelector);
 
     function handleSelectFolder(folderId) {
-        dispatch(switchFolderApi({ dataUrl: user.dataUrl, folderId: folderId, folderList: folder.list }));
+        dispatch(generalSlice.actions.setSelectedFolderId(folderId));
     }
     function handleDisplayCompose() {
         dispatch(generalSlice.actions.changeComposeOpenState());

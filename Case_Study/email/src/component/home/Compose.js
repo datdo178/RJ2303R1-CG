@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { composeSelector, userSelector } from '../../redux/selectors';
 import generalSlice, { saveMailDraftApi, sendMailApi } from '../../redux/generalSlice';
 
-export default function ComposeEmail(props) {
+export default function ComposeEmail() {
     const user = useSelector(userSelector);
     const compose = useSelector(composeSelector);
     const dispatch = useDispatch();
@@ -26,9 +26,10 @@ export default function ComposeEmail(props) {
             fromAddress: user.email,
             toAddress: compose.toAddress,
             title: compose.title,
-            content: compose.content
+            content: compose.content,
+            id: compose.id
         }))
-        props.handleDisplayCompose();
+        // props.handleDisplayCompose();
     }
 
     function saveDraft(e) {
@@ -38,7 +39,8 @@ export default function ComposeEmail(props) {
             fromAddress: user.email,
             toAddress: compose.toAddress,
             title: compose.title,
-            content: compose.content
+            content: compose.content,
+            id: compose.id
         }));
         dispatch(generalSlice.actions.changeComposeOpenState());
     }

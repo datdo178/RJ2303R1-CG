@@ -34,13 +34,13 @@ export default function MailDetails() {
         }));
     }
     function changeReadState() {
+        setReadState(!readState);
         dispatch(changeMailReadStateApi({
             dataUrl: user.dataUrl,
             folderId: folder.selectedId,
             mailId: mail.selected.id,
-            isRead: !mail.selected.isRead
+            isRead: readState
         }));
-        setReadState(true);
     }
 
     return <div id="mail-details" className="block">

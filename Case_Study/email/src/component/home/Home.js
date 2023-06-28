@@ -3,7 +3,7 @@ import Header from './Header';
 import MailList from './MailList';
 import MailDetails from './MailDetails';
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 export default function Home() {
     return <>
@@ -12,7 +12,7 @@ export default function Home() {
             <div className="col-3 col-md-2 m-0"><SideBar/></div>
             <div className="col-10 col-mail-list ps-0 pe-3">
                 <Routes>
-                    <Route path="/" element={<MailList/>} />
+                    <Route path="*" element={<Navigate to="folder/1" replace /> }/>
                     <Route path="folder/:folderId" element={<MailList/>} />
                     <Route path="folder/:folderId/email/:mailId" element={<MailDetails/>} />
                 </Routes>

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { userSelector, folderSelector, mailSelector } from '../../redux/selectors';
-import generalSlice, { changeMailReadStateApi, deleteMailApi, switchFolderApi } from '../../redux/generalSlice';
+import generalSlice, { changeMailReadStateApi, deleteMailApi } from '../../redux/generalSlice';
 
 export default function MailList() {
     const params = useParams();
@@ -20,26 +20,20 @@ export default function MailList() {
     const [selectedPage, setSelectedPage] = useState(1);
 
     let totalPages = useMemo(() => {
-        return Math.ceil(mail.list.length / mail.quantityPerPage);
-    }, [mail.list]);
+        return Math.ceil(mail.filterByFolder[folder.selectedId].length / mail.quantityPerPage);
+    }, [folder.selectedId]);
 
     let curPageMailList = useMemo(() => {
         const firstIndex = (selectedPage - 1) * mail.quantityPerPage;
-        return [...mail.list].splice(firstIndex, mail.quantityPerPage);
-    }, [mail.list, selectedPage]);
+        return [...mail.filterByFolder[folder.selectedId]].splice(firstIndex, mail.quantityPerPage);
+    }, [folder.selectedId, selectedPage, mail.filterByFolder[folder.selectedId]]);
 
     useEffect(() => {
-        dispatch(switchFolderApi({ dataUrl: user.dataUrl, folderId: params.folderId, folderList: folder.list }));
-    }, [params.id])
-
-    useEffect(() => {
+        dispatch(generalSlice.actions.setSelectedFolderId(params.folderId || folder.selectedId));
         setCheckedBoxes([]);
         setCheckedAll(false);
-    }, [mail.list]);
-
-    useEffect(() => {
         setSelectedPage(1);
-    }, [folder.selectedId]);
+    }, [params.folderId]);
 
     function handleCheckedBoxed(id) {
         if (typeof id === 'string') {
@@ -106,7 +100,7 @@ export default function MailList() {
             <h1 className="opacity-25">Empty box</h1>
         </div> : ""}
         <div id="mail-list-table">
-            <table className="table">
+            <table className="table bg-white">
                 <tbody>
                 {curPageMailList.map(mailItem => (
                     <tr className="mail-line hover-meow" key={mailItem.id} onClick={() => openEmail(mailItem)}>
