@@ -1,10 +1,10 @@
-import avatar from "../../assets/images/cat.png";
+import avatar from "../../../assets/images/cat.png";
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { folderSelector, mailSelector, userSelector } from '../../redux/selectors';
-import { changeMailReadStateApi, deleteMailApi, flagMailApi } from '../../redux/generalSlice';
+import { folderSelector, mailSelector, userSelector } from '../../../redux/selectors';
+import { changeMailReadStateApi, deleteMailApi, flagMailApi } from '../../../redux/generalSlice';
 
 export default function MailDetails() {
     const navigate = useNavigate();

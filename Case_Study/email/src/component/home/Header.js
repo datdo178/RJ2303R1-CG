@@ -1,5 +1,5 @@
 import logo from "../../assets/images/paw.png";
-import { Search } from './Search';
+import { Search } from './normal-user/Search';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { userSelector } from '../../redux/selectors';

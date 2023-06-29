@@ -1,9 +1,9 @@
-import { FOLDER_ICONS } from "../../constants";
+import { FOLDER_ICONS } from "../../../constants";
 import { Link } from 'react-router-dom';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { userSelector, folderSelector, composeSelector } from '../../redux/selectors';
-import generalSlice from '../../redux/generalSlice';
+import { userSelector, folderSelector, composeSelector } from '../../../redux/selectors';
+import generalSlice from '../../../redux/generalSlice';
 import ComposeEmail from './Compose';
 
 export default function SideBar() {

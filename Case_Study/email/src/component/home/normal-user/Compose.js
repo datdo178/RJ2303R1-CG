@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { composeSelector, userSelector } from '../../redux/selectors';
-import generalSlice, { saveMailDraftApi, sendMailApi } from '../../redux/generalSlice';
+import { composeSelector, userSelector } from '../../../redux/selectors';
+import generalSlice, { saveMailDraftApi, sendMailApi } from '../../../redux/generalSlice';
 
 export default function ComposeEmail() {
     const user = useSelector(userSelector);

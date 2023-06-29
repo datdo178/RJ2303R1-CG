@@ -1,11 +1,11 @@
-import emptyPic from "../../assets/images/cat-box.png";
-import { FOLDER_IDS } from '../../constants';
+import emptyPic from "../../../assets/images/cat-box.png";
+import { FOLDER_IDS } from '../../../constants';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { userSelector, folderSelector, mailSelector } from '../../redux/selectors';
-import generalSlice, { changeMailReadStateApi, deleteMailApi } from '../../redux/generalSlice';
+import { userSelector, folderSelector, mailSelector } from '../../../redux/selectors';
+import generalSlice, { changeMailReadStateApi, deleteMailApi } from '../../../redux/generalSlice';
 
 export default function MailList() {
     const params = useParams();

@@ -1,9 +1,9 @@
 export const FOLDER_ICONS = {
-    "Inbox": "fa-inbox",
-    "Sent": "fa-paper-plane",
-    "Star": "fa-star",
-    "Draft": "fa-pen-ruler",
-    "Trash": "fa-trash-can"
+    "1": "fa-inbox",
+    "2": "fa-paper-plane",
+    "3": "fa-pen-ruler",
+    "4": "fa-trash-can",
+    "5": "fa-star"
 };
 
 export const URLS = {

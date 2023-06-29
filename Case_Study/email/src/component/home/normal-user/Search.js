@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { folderSelector, searchSelector, userSelector } from '../../redux/selectors';
-import generalSlice, { changeMailReadStateApi } from '../../redux/generalSlice';
-import { FOLDER_IDS, MAX_SEARCH_RESULT_QUANTITY } from '../../constants';
+import { folderSelector, searchSelector, userSelector } from '../../../redux/selectors';
+import generalSlice, { changeMailReadStateApi } from '../../../redux/generalSlice';
+import { FOLDER_IDS, MAX_SEARCH_RESULT_QUANTITY } from '../../../constants';
 import { useNavigate } from 'react-router-dom';
 
 export function Search() {

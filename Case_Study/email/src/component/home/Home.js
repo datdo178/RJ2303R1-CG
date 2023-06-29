@@ -1,7 +1,7 @@
-import SideBar from './Sidebar';
+import SideBar from './normal-user/Sidebar';
 import Header from './Header';
-import MailList from './MailList';
-import MailDetails from './MailDetails';
+import MailList from './normal-user/MailList';
+import MailDetails from './normal-user/MailDetails';
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 
