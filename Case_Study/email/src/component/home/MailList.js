@@ -46,6 +46,10 @@ export default function MailList() {
     }
 
     function deleteMails() {
+        if (checkedBoxes.length === 0) {
+            return;
+        }
+
         dispatch(deleteMailApi({
             dataUrl: user.dataUrl,
             folderId: folder.selectedId,

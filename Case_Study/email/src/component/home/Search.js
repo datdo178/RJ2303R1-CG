@@ -1,20 +1,46 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { searchSelector } from '../../redux/selectors';
-import generalSlice from '../../redux/generalSlice';
-import { MAX_SEARCH_RESULT_QUANTITY } from '../../constants';
+import { folderSelector, searchSelector, userSelector } from '../../redux/selectors';
+import generalSlice, { changeMailReadStateApi } from '../../redux/generalSlice';
+import { FOLDER_IDS, MAX_SEARCH_RESULT_QUANTITY } from '../../constants';
+import { useNavigate } from 'react-router-dom';
 
 export function Search() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const search = useSelector(searchSelector);
+    const user = useSelector(userSelector);
+    const folder = useSelector(folderSelector);
 
-    function handleSearchKeywordChange(e) {
-        dispatch(generalSlice.actions.changeSearchKeyword(e.target.value));
+    console.log(folder.list.find(i => i.id === "1").name);
+
+    function handleSearchKeywordChange(keyword) {
+        dispatch(generalSlice.actions.search(keyword));
+    }
+
+    function openMail(mail) {
+        console.log(mail.id);
+        if (mail.folderId !== FOLDER_IDS.DRAFT) {
+            navigate(`folder/${mail.folderId}/email/${mail.id}`);
+            dispatch(changeMailReadStateApi({
+                dataUrl: user.dataUrl,
+                folderId: mail.folderId,
+                mailId: mail.id,
+                isRead: true
+            }));
+            dispatch(generalSlice.actions.selectMail(mail));
+            handleSearchKeywordChange("");
+        } else {
+            navigate(`/folder/${mail.folderId}`);
+            dispatch(generalSlice.actions.setComposeMail(mail));
+            handleSearchKeywordChange("");
+        }
     }
 
     return <div className="position-relative" style={{ width: "450px" }}>
         <input
             className={`form-control ${search.keyword ? "searching-state-input" : "rounded-pill"}`}
-            onChange={e => handleSearchKeywordChange(e)}
+            onChange={e => handleSearchKeywordChange(e.target.value)}
+            onFocus={e => handleSearchKeywordChange(e.target.value)}
         />
 
             {search.keyword ?
@@ -33,10 +59,14 @@ export function Search() {
                             <li
                                 key={item.id}
                                 className="list-group-item hover-meow"
+                                onClick={() => openMail(item)}
                             >
-                                <b>Title: </b>{item.title.slice(0, 30)}...
+                                <span className="badge bg-personal">
+                                    {folder.list.find(i => i.id === item.folderId).name}
+                                </span>
+                                {item.title.slice(0, 40)}{item.title.length > 40 ? "..." : ""}
                                 <br/>
-                                <span className="fw-lighter">{item.content.slice(0, 45)}...</span>
+                                <span className="fw-lighter">{item.content.slice(0, 45)}{item.title.length > 45 ? "..." : ""}</span>
                             </li>
                         )}
                     </ul>

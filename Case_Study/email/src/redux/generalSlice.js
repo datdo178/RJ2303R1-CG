@@ -94,7 +94,7 @@ const generalSlice = createSlice({
         changeComposeOpenState: (state) => {
             state.compose.isOpen = !state.compose.isOpen;
         },
-        changeSearchKeyword: (state, action) => {
+        search: (state, action) => {
             state.search.keyword = action.payload;
             const results = []
 
@@ -357,10 +357,6 @@ export const getMailListApi = createAsyncThunk(
 export const deleteMailApi = createAsyncThunk(
     'mail/delete',
     async({dataUrl, folderId, mailIds}) => {
-        if (mailIds.length === 0) {
-            return [];
-        }
-
         for (const id of mailIds) {
             if (folderId === FOLDER_IDS.DELETE) {
                 await axios.delete(sprintf(URLS.EMAIL, dataUrl, folderId, id))

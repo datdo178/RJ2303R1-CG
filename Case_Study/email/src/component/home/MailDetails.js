@@ -15,15 +15,16 @@ export default function MailDetails() {
     const mail = useSelector(mailSelector);
 
     function backToMailList() {
-        navigate(-1);
+        navigate(`/folder/${mail.selected.folderId}`);
     }
     function deleteMail() {
+        const folderId = mail.selected.folderId;
         dispatch(deleteMailApi({
             dataUrl: user.dataUrl,
             folderId: folder.selectedId,
             mailIds: [mail.selected.id]
         }));
-        navigate(-1);
+        navigate(`/folder/${folderId}`);
     }
     function flagMail() {
         dispatch(flagMailApi({

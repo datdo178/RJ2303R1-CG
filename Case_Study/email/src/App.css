@@ -96,7 +96,7 @@ body {
 
 /* SEARCH */
 #search-result {
-  border-color: #dddddd!important;
+  border: solid 1px #dddddd !important;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
 }
