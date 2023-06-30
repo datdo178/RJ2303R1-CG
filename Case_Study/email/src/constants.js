@@ -9,6 +9,7 @@ export const FOLDER_ICONS = {
 export const URLS = {
     USERS: 'http://demo3072656.mockable.io/user',
     FOLDERS: '%s/folder',
+    FOLDER: '%s/folder/%s',
     EMAILS: '%s/folder/%s/email',
     EMAIL: '%s/folder/%s/email/%s'
 }
@@ -24,3 +25,5 @@ export const FOLDER_IDS = {
 }
 
 export const MAX_SEARCH_RESULT_QUANTITY = 10;
+
+export const SETTING_TABS = [ 'Folder', 'Export Data']

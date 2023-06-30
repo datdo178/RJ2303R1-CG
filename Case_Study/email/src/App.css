@@ -235,3 +235,18 @@ body {
 .compose-icon:hover {
   background-color: rgba(92, 95, 233, 0.2);
 }
+
+/* FOLDER SETTING */
+#folder-setting .list-group {
+  max-width: 500px;
+}
+
+/* TOAST */
+.toast-success {
+  background-color: #51A351!important;
+  opacity: 1!important;
+}
+
+.toast-error {
+  background-color: #bd632f !important;
+}

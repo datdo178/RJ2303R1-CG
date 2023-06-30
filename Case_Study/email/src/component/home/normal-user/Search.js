@@ -11,8 +11,6 @@ export function Search() {
     const user = useSelector(userSelector);
     const folder = useSelector(folderSelector);
 
-    console.log(folder.list.find(i => i.id === "1").name);
-
     function handleSearchKeywordChange(keyword) {
         dispatch(generalSlice.actions.search(keyword));
     }

@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import bcrypt from 'bcryptjs';
 import { FOLDER_IDS, MAX_SEARCH_RESULT_QUANTITY, URLS } from '../constants';
 import { deleteCookie, setCookie } from '../assets/js/actions';
 import { sprintf } from 'sprintf-js';
+import toastr from 'toastr';
 
 const generalSlice = createSlice({
     name:'general',
@@ -12,8 +12,8 @@ const generalSlice = createSlice({
         loginError: '',
         user: {
             email: '',
-            displayName: '',
-            dataUrl: ''
+            dataUrl: '',
+            isAdmin: false
         },
         folder: {
             selectedId: FOLDER_IDS.DEFAULT,
@@ -60,6 +60,7 @@ const generalSlice = createSlice({
             state.user.email = action.payload.email;
             state.user.displayName = action.payload.displayName;
             state.user.dataUrl = action.payload.dataUrl;
+            state.user.isAdmin = action.payload.isAdmin;
         },
         setSelectedFolderId: (state, action) => {
             state.folder.selectedId = action.payload;
@@ -121,11 +122,16 @@ const generalSlice = createSlice({
             // loginApi
             .addCase(loginApi.pending, state => { state.isLoading = true })
             .addCase(loginApi.fulfilled, (state, action) => {
-                state.user = action.payload.user
-                state.folder.list = action.payload.folderList;
-                state.mail.list = action.payload.mailList;
-                state.mail.filterByFolder = action.payload.filterByFolder;
-                state.isLoading = false
+                if (!action.payload.user.email) {
+                    toastr["error"]("Login failed!");
+                    state.isLoading = false
+                } else {
+                    state.user = action.payload.user
+                    state.folder.list = action.payload.folderList;
+                    state.mail.list = action.payload.mailList;
+                    state.mail.filterByFolder = action.payload.filterByFolder;
+                    state.isLoading = false
+                }
             })
             .addCase(loginApi.rejected, state => { state.isLoading = false })
             // loginWithCookie
@@ -147,7 +153,7 @@ const generalSlice = createSlice({
             // })
             // .addCase(switchFolderApi.rejected, state => { state.isLoading = false })
             // changeMailReadState
-            .addCase(changeMailReadStateApi.pending, state => { state.isLoading = true })
+            // .addCase(changeMailReadStateApi.pending, state => { state.isLoading = true })
             .addCase(changeMailReadStateApi.fulfilled, (state, action) => {
                 let index = state.mail.list.findIndex(item => item.id === action.payload.mail.id);
                 state.mail.list[index] = action.payload.mail;
@@ -157,7 +163,7 @@ const generalSlice = createSlice({
 
                 state.isLoading = false;
             })
-            .addCase(changeMailReadStateApi.rejected, state => { state.isLoading = false })
+            // .addCase(changeMailReadStateApi.rejected, state => { state.isLoading = false })
             // deleteMail
             .addCase(deleteMailApi.pending, state => { state.isLoading = true })
             .addCase(deleteMailApi.fulfilled, (state, action) => {
@@ -177,6 +183,8 @@ const generalSlice = createSlice({
                         state.mail.filterByFolder[FOLDER_IDS.DELETE].splice(index, 0, removedMail);
                     }
                 }
+
+                toastr["success"]("Deleted mail!");
 
                 state.isLoading = false;
             })
@@ -224,6 +232,8 @@ const generalSlice = createSlice({
                     const index = state.mail.filterByFolder[FOLDER_IDS.DRAFT].findIndex(item => item.id === action.payload.id);
                     state.mail.filterByFolder[FOLDER_IDS.DRAFT].splice(index, 1);
                 }
+
+                toastr["success"]("Sent mail!")
             })
             .addCase(sendMailApi.rejected, state => { state.isLoading = false })
             // saveDraftMail
@@ -247,8 +257,22 @@ const generalSlice = createSlice({
                     const indexFilterList = state.mail.filterByFolder[FOLDER_IDS.DRAFT].findIndex(item => item.id === action.payload.mail.id);
                     state.mail.filterByFolder[FOLDER_IDS.DRAFT][indexFilterList] = action.payload.mail;
                 }
+
+                toastr["success"]("Saved mail!");
             })
             .addCase(saveMailDraftApi.rejected, state => { state.isLoading = false })
+            // updateFolder
+            .addCase(updateFolderApi.pending, state => { state.isLoading = true })
+            .addCase(updateFolderApi.fulfilled, (state, action) => {
+                state.isLoading = false;
+                for (const folder of action.payload) {
+                    const index = state.folder.list.findIndex(item => item.id === folder.id);
+                    state.folder.list[index].name = folder.name;
+                }
+
+                toastr["success"]("Save successfully", "Folder Setting");
+            })
+            .addCase(updateFolderApi.rejected, state => { state.isLoading = false })
     }
 })
 
@@ -258,6 +282,17 @@ export const loginApi = createAsyncThunk(
         let res = await axios.get(URLS.USERS);
         const loggedUser = res.data.find(user => user.email === credentials.email);
         // const hash = bcrypt.hashSync(credentials.password,"$2a$10$m4NDunPOgN.5EXbQQfSqKO");
+
+        if (credentials.password !== loggedUser.password) {
+            return {
+                user: {
+                    email: '',
+                    dataUrl: '',
+                    isAdmin: false
+                }
+            };
+        }
+
         delete loggedUser.password;
         setCookie("user", JSON.stringify(loggedUser));
 
@@ -308,18 +343,6 @@ export const loginWithCookieApi = createAsyncThunk(
             mailList: mailList,
             filterByFolder: filterByFolder
         };
-    }
-)
-
-export const getFolderListApi = createAsyncThunk(
-    'folder/getList',
-    async (dataUrl) => {
-        if (dataUrl) {
-            const res = await axios.get(sprintf(URLS.FOLDERS, dataUrl));
-            return res.data;
-        } else {
-            return [];
-        }
     }
 )
 
@@ -442,6 +465,17 @@ export const saveMailDraftApi = createAsyncThunk(
             id: id,
             mail: res.data
         };
+    }
+)
+
+export const updateFolderApi = createAsyncThunk(
+    'admin/updateFolder',
+    async ({dataUrl, folderList}) => {
+        for (const folder of folderList) {
+            await axios.put(sprintf(URLS.FOLDER, dataUrl, folder.id), { name: folder.name });
+        }
+
+        return folderList;
     }
 )
 

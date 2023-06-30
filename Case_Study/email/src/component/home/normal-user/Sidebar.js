@@ -2,7 +2,7 @@ import { FOLDER_ICONS } from "../../../constants";
 import { Link } from 'react-router-dom';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { userSelector, folderSelector, composeSelector } from '../../../redux/selectors';
+import { folderSelector, composeSelector } from '../../../redux/selectors';
 import generalSlice from '../../../redux/generalSlice';
 import ComposeEmail from './Compose';
 
@@ -31,7 +31,7 @@ export default function SideBar() {
                     {folder.list.map(item =>
                         <li
                             key={item.id}
-                            className={`mail-folder nav-link fw-light hover-meow fs-4 p-3 ${item.id === folder.selectedId ? "mail-folder-selected" : "aaa"}`}
+                            className={`mail-folder nav-link fw-light hover-meow fs-4 p-3 ${item.id === folder.selectedId ? "mail-folder-selected" : ""}`}
                             onClick={() => handleSelectFolder(item.id)}
                         >
                             <Link className="nav-link" to={`/folder/${item.id}`}>

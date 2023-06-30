@@ -116,7 +116,9 @@ export default function MailList() {
                                 onChange={() => 1}
                             />
                         </td>
-                        <td className={mailItem.isRead ? "" : "fw-bold"}>{folder.selectedId === FOLDER_IDS.DRAFT ? mailItem.to : mailItem.from}</td>
+                        <td className={mailItem.isRead ? "" : "fw-bold"}>
+                            {folder.selectedId === FOLDER_IDS.DRAFT || folder.selectedId === FOLDER_IDS.SENT ? mailItem.to : mailItem.from}
+                        </td>
                         <td className="position-relative">
                             <div className={`text-nowrap overflow-hidden ${mailItem.isRead ? "" : "fw-bold"}`}>
                                 {mailItem.isFlagged ? <i className="fa-solid fa-star fw-solid text-meow pe-1"></i> : ""}
