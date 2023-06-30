@@ -25,5 +25,7 @@ export const FOLDER_IDS = {
 }
 
 export const MAX_SEARCH_RESULT_QUANTITY = 10;
-
-export const SETTING_TABS = [ 'Folder', 'Export Data']
+export const SETTING_TABS = {
+    0: { label: 'Folder', urlPrefix: 'folder-setting' },
+    1: { label: 'Export Data', urlPrefix: 'export-data' }
+}

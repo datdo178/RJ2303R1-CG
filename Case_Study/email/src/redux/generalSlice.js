@@ -15,6 +15,7 @@ const generalSlice = createSlice({
             dataUrl: '',
             isAdmin: false
         },
+        userList: [],
         folder: {
             selectedId: FOLDER_IDS.DEFAULT,
             list: []
@@ -126,7 +127,8 @@ const generalSlice = createSlice({
                     toastr["error"]("Login failed!");
                     state.isLoading = false
                 } else {
-                    state.user = action.payload.user
+                    state.user = action.payload.user;
+                    state.user = action.payload.userList;
                     state.folder.list = action.payload.folderList;
                     state.mail.list = action.payload.mailList;
                     state.mail.filterByFolder = action.payload.filterByFolder;
@@ -137,7 +139,8 @@ const generalSlice = createSlice({
             // loginWithCookie
             .addCase(loginWithCookieApi.pending, state => { state.isLoading = true })
             .addCase(loginWithCookieApi.fulfilled, (state, action) => {
-                state.user = action.payload.user
+                state.user = action.payload.user;
+                state.userList = action.payload.userList;
                 state.folder.list = action.payload.folderList;
                 state.mail.list = action.payload.mailList;
                 state.mail.filterByFolder = action.payload.filterByFolder;
@@ -280,6 +283,7 @@ export const loginApi = createAsyncThunk(
     'general/login',
     async (credentials) => {
         let res = await axios.get(URLS.USERS);
+        let userList = [];
         const loggedUser = res.data.find(user => user.email === credentials.email);
         // const hash = bcrypt.hashSync(credentials.password,"$2a$10$m4NDunPOgN.5EXbQQfSqKO");
 
@@ -291,6 +295,10 @@ export const loginApi = createAsyncThunk(
                     isAdmin: false
                 }
             };
+        }
+
+        if (loggedUser.isAdmin) {
+            userList = res.data;
         }
 
         delete loggedUser.password;
@@ -313,6 +321,7 @@ export const loginApi = createAsyncThunk(
 
         return {
             user: loggedUser,
+            userList: userList,
             folderList: folderList,
             mailList: mailList,
             filterByFolder: filterByFolder
@@ -337,8 +346,15 @@ export const loginWithCookieApi = createAsyncThunk(
 
         filterByFolder[FOLDER_IDS.STAR] = mailList.filter(mail => mail.isFlagged === true);
 
+        let userList = [];
+        if (cookieUser.isAdmin) {
+            const res = await axios.get(URLS.USERS);
+            userList = res.data;
+        }
+
         return {
             user: cookieUser,
+            userList: userList,
             folderList: folderList,
             mailList: mailList,
             filterByFolder: filterByFolder

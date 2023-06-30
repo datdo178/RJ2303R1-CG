@@ -18,6 +18,7 @@ function App() {
 
     useEffect(() => {
         const cookieUser = getCookie('user');
+
         if (cookieUser) {
             dispatch(loginWithCookieApi(JSON.parse(cookieUser)));
         }

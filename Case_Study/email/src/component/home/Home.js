@@ -8,6 +8,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { FolderSetting } from './admin/FolderSetting';
 import { useSelector } from 'react-redux';
 import { userSelector } from '../../redux/selectors';
+import { ExportData } from './admin/ExportData';
+import { SETTING_TABS } from '../../constants';
 
 export default function Home() {
     const user = useSelector(userSelector);
@@ -21,8 +23,8 @@ export default function Home() {
                 <div className="col-10 col-mail-list ps-0 pe-3">
                 <Routes>
                 <Route path="*" element={<Navigate to="folder-setting" replace /> }/>
-                <Route path="folder-setting" element={<FolderSetting/>} />
-                <Route path="folder/:folderId/email/:mailId" element={<MailDetails/>} />
+                <Route path={`${SETTING_TABS[0].urlPrefix}`} element={<FolderSetting />} />
+                <Route path={`${SETTING_TABS[1].urlPrefix}`} element={<ExportData />} />
                 </Routes>
                 </div>
                 </>
