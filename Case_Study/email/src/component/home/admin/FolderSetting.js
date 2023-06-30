@@ -9,7 +9,7 @@ export function FolderSetting() {
     const user = useSelector(userSelector);
     const folder = useSelector(folderSelector);
     const [selectedFolder, setSelectedFolder] = useState([]);
-    const [folderList, setFolderList] = useState(folder.list);
+    const [folderList, setFolderList] = useState([...folder.list]);
 
     function selectFolder(id) {
         const temp = [...selectedFolder];
@@ -22,8 +22,10 @@ export function FolderSetting() {
         temp.splice(index1, 1)
         setSelectedFolder(temp);
 
+        const temp2 = JSON.parse(JSON.stringify(folderList));
         const index2 = folder.list.findIndex(item => item.id === id);
-        folderList[index2].name = folder.list[index2].name;
+        temp2[index2].name = folder.list[index2].name;
+        setFolderList(temp2);
     }
     function changeFolderName(value, id) {
         const updatedList = JSON.parse(JSON.stringify(folderList));
@@ -70,6 +72,6 @@ export function FolderSetting() {
                 </div>)}
             </ul>
         </div>
-        <button className="btn btn-success ms-3" onClick={() => save()}>Save</button>
+        <button className="btn btn-success ms-3" onClick={() => save()} disabled={selectedFolder.length === 0}>Save</button>
     </div>
 }

@@ -1,4 +1,4 @@
-import logo from '../../assets/images/paw.png';
+import logo from '../../assets/images/logo-1.png';
 import { loginApi } from '../../redux/generalSlice';
 import { EMAIL_REGEX } from '../../constants';
 

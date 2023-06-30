@@ -43,8 +43,8 @@ const generalSlice = createSlice({
             deleteCookie();
             state.user = {
                 email: '',
-                displayName: '',
-                dataUrl: ''
+                dataUrl: '',
+                isAdmin: false
             }
             state.compose = {
                 isOpen: false,
@@ -59,7 +59,6 @@ const generalSlice = createSlice({
         },
         setUser: (state, action) => {
             state.user.email = action.payload.email;
-            state.user.displayName = action.payload.displayName;
             state.user.dataUrl = action.payload.dataUrl;
             state.user.isAdmin = action.payload.isAdmin;
         },
@@ -124,18 +123,21 @@ const generalSlice = createSlice({
             .addCase(loginApi.pending, state => { state.isLoading = true })
             .addCase(loginApi.fulfilled, (state, action) => {
                 if (!action.payload.user.email) {
+                    state.isLoading = false;
                     toastr["error"]("Login failed!");
-                    state.isLoading = false
                 } else {
                     state.user = action.payload.user;
-                    state.user = action.payload.userList;
+                    state.userList = action.payload.userList;
                     state.folder.list = action.payload.folderList;
                     state.mail.list = action.payload.mailList;
                     state.mail.filterByFolder = action.payload.filterByFolder;
-                    state.isLoading = false
+                    state.isLoading = false;
                 }
             })
-            .addCase(loginApi.rejected, state => { state.isLoading = false })
+            .addCase(loginApi.rejected, state => {
+                state.isLoading = false;
+                toastr["error"]("Login failed!");
+            })
             // loginWithCookie
             .addCase(loginWithCookieApi.pending, state => { state.isLoading = true })
             .addCase(loginWithCookieApi.fulfilled, (state, action) => {

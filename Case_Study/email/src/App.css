@@ -236,8 +236,12 @@ body {
   background-color: rgba(92, 95, 233, 0.2);
 }
 
-/* FOLDER SETTING */
+/* SETTINGS */
 #folder-setting .list-group {
+  max-width: 500px;
+}
+
+#export-setting select {
   max-width: 500px;
 }
 
