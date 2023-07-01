@@ -7,6 +7,7 @@ export const FOLDER_ICONS = {
 };
 
 export const URLS = {
+    CONFIG: 'https://647820fa362560649a2d3c20.mockapi.io/config/1',
     USERS: 'http://demo3072656.mockable.io/user',
     FOLDERS: '%s/folder',
     FOLDER: '%s/folder/%s',
@@ -23,9 +24,8 @@ export const FOLDER_IDS = {
     DELETE: "4",
     STAR: "5"
 }
-
-export const MAX_SEARCH_RESULT_QUANTITY = 10;
 export const SETTING_TABS = {
     0: { label: 'Folder', urlPrefix: 'folder-setting' },
-    1: { label: 'Export Data', urlPrefix: 'export-data' }
+    1: { label: 'Export Data', urlPrefix: 'export-data' },
+    2: { label: 'Search', urlPrefix: 'search-setting'}
 }

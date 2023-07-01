@@ -245,6 +245,12 @@ body {
   max-width: 500px;
 }
 
+.search-input {
+  width: 50px;
+  margin-left: 5px;
+  text-align: end;
+}
+
 /* TOAST */
 .toast-success {
   background-color: #51A351!important;

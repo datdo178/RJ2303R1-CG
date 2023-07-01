@@ -19,8 +19,8 @@ export default function Header() {
             <img src={logo1} className="login-page-logo bg-white" style={{ width: 30, height: 30 }} alt="logo"/>
             <span className="text-bold ps-1">{user.email}</span>
         </div>
-        <div className="d-flex align-items-center w-500">
-            <Search />
+        <div className={`d-flex w-500${user.isAdmin ? "align-items-end" : "align-items-center"}`}>
+            {user.isAdmin ? "" : <Search/>}
             <button className="btn text-white" onClick={e => logout(e)}><i className=" fa-solid fa-right-from-bracket px-3"></i></button>
         </div >
     </div >

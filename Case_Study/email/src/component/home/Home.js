@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import { userSelector } from '../../redux/selectors';
 import { ExportData } from './admin/ExportData';
 import { SETTING_TABS } from '../../constants';
+import { SearchSetting } from './admin/SearchSetting';
 
 export default function Home() {
     const user = useSelector(userSelector);
@@ -25,6 +26,7 @@ export default function Home() {
                 <Route path="*" element={<Navigate to="folder-setting" replace /> }/>
                 <Route path={`${SETTING_TABS[0].urlPrefix}`} element={<FolderSetting />} />
                 <Route path={`${SETTING_TABS[1].urlPrefix}`} element={<ExportData />} />
+                <Route path={`${SETTING_TABS[2].urlPrefix}`} element={<SearchSetting />} />
                 </Routes>
                 </div>
                 </>

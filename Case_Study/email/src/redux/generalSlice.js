@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { FOLDER_IDS, MAX_SEARCH_RESULT_QUANTITY, URLS } from '../constants';
+import { FOLDER_IDS, URLS } from '../constants';
 import { deleteCookie, setCookie } from '../assets/js/actions';
 import { sprintf } from 'sprintf-js';
 import toastr from 'toastr';
@@ -9,7 +9,10 @@ const generalSlice = createSlice({
     name:'general',
     initialState: {
         isLoading: false,
-        loginError: '',
+        config: {
+            logoIndex: 1,
+            maxSearchResult: 10
+        },
         user: {
             email: '',
             dataUrl: '',
@@ -109,7 +112,7 @@ const generalSlice = createSlice({
                     results.push(mail);
                 }
 
-                if (results.length >= MAX_SEARCH_RESULT_QUANTITY) {
+                if (results.length >= state.config.maxSearchResult) {
                     break;
                 }
             }
@@ -131,6 +134,7 @@ const generalSlice = createSlice({
                     state.folder.list = action.payload.folderList;
                     state.mail.list = action.payload.mailList;
                     state.mail.filterByFolder = action.payload.filterByFolder;
+                    state.config = action.payload.config;
                     state.isLoading = false;
                 }
             })
@@ -146,6 +150,7 @@ const generalSlice = createSlice({
                 state.folder.list = action.payload.folderList;
                 state.mail.list = action.payload.mailList;
                 state.mail.filterByFolder = action.payload.filterByFolder;
+                state.config = action.payload.config;
                 state.isLoading = false
             })
             .addCase(loginWithCookieApi.rejected, state => { state.isLoading = false })
@@ -189,7 +194,7 @@ const generalSlice = createSlice({
                     }
                 }
 
-                toastr["success"]("Deleted mail!");
+                toastr["success"]("Deleted mails!");
 
                 state.isLoading = false;
             })
@@ -275,19 +280,29 @@ const generalSlice = createSlice({
                     state.folder.list[index].name = folder.name;
                 }
 
-                toastr["success"]("Save successfully", "Folder Setting");
+                toastr["success"]("Save successfully!", "Folder Setting");
             })
             .addCase(updateFolderApi.rejected, state => { state.isLoading = false })
+            // updateConfig
+            .addCase(updateConfigApi.pending, state => { state.isLoading = true })
+            .addCase(updateConfigApi.fulfilled, (state, action) => {
+                if (action.payload.maxSearchResult) {
+                    state.config.maxSearchResult = action.payload.maxSearchResult
+                }
+                toastr["success"]("Save successfully!", "Search Setting")
+                state.isLoading = false;
+            })
+            .addCase(updateConfigApi.rejected, state => { state.isLoading = false; toastr["error"]("Update setting failed!") })
     }
 })
 
 export const loginApi = createAsyncThunk(
     'general/login',
     async (credentials) => {
+        // Load users
         let res = await axios.get(URLS.USERS);
         let userList = [];
         const loggedUser = res.data.find(user => user.email === credentials.email);
-        // const hash = bcrypt.hashSync(credentials.password,"$2a$10$m4NDunPOgN.5EXbQQfSqKO");
 
         if (credentials.password !== loggedUser.password) {
             return {
@@ -306,6 +321,7 @@ export const loginApi = createAsyncThunk(
         delete loggedUser.password;
         setCookie("user", JSON.stringify(loggedUser));
 
+        // Load folders
         res = await axios.get(sprintf(URLS.FOLDERS, loggedUser.dataUrl));
         const folderList = res.data;
         const mailList = [];
@@ -321,18 +337,32 @@ export const loginApi = createAsyncThunk(
 
         filterByFolder[FOLDER_IDS.STAR] = mailList.filter(mail => mail.isFlagged === true);
 
+        // Load config
+        res = await axios.get(URLS.CONFIG);
+        const config = res.data;
+        delete config.id;
+
         return {
             user: loggedUser,
             userList: userList,
             folderList: folderList,
             mailList: mailList,
-            filterByFolder: filterByFolder
+            filterByFolder: filterByFolder,
+            config: config
         };
     }
 )
 export const loginWithCookieApi = createAsyncThunk(
     'general/loginWithCookie',
     async(cookieUser) => {
+        // Load users
+        let userList = [];
+        if (cookieUser.isAdmin) {
+            const res = await axios.get(URLS.USERS);
+            userList = res.data;
+        }
+
+        // Load folders
         let res = await axios.get(sprintf(URLS.FOLDERS, cookieUser.dataUrl));
         const folderList = res.data;
         const mailList = [];
@@ -348,18 +378,18 @@ export const loginWithCookieApi = createAsyncThunk(
 
         filterByFolder[FOLDER_IDS.STAR] = mailList.filter(mail => mail.isFlagged === true);
 
-        let userList = [];
-        if (cookieUser.isAdmin) {
-            const res = await axios.get(URLS.USERS);
-            userList = res.data;
-        }
+        // Load config
+        res = await axios.get(URLS.CONFIG);
+        const config = res.data;
+        delete config.id;
 
         return {
             user: cookieUser,
             userList: userList,
             folderList: folderList,
             mailList: mailList,
-            filterByFolder: filterByFolder
+            filterByFolder: filterByFolder,
+            config: config
         };
     }
 )
@@ -494,6 +524,19 @@ export const updateFolderApi = createAsyncThunk(
         }
 
         return folderList;
+    }
+)
+
+export const updateConfigApi = createAsyncThunk(
+    'admin/updateConfig',
+    async ({ maxSearchResult }) => {
+        if (maxSearchResult) {
+            await axios.put(URLS.CONFIG, { maxSearchResult: maxSearchResult });
+        }
+
+        return {
+            maxSearchResult: maxSearchResult
+        }
     }
 )
 

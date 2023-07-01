@@ -21,7 +21,7 @@ export default function MailList() {
 
     let totalPages = useMemo(() => {
         return Math.ceil(mail.filterByFolder[folder.selectedId].length / mail.quantityPerPage);
-    }, [folder.selectedId]);
+    }, [folder.selectedId, mail.filterByFolder[folder.selectedId]]);
 
     let curPageMailList = useMemo(() => {
         const firstIndex = (selectedPage - 1) * mail.quantityPerPage;

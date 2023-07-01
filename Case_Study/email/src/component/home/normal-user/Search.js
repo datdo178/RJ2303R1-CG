@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { folderSelector, searchSelector, userSelector } from '../../../redux/selectors';
+import { configSelector, folderSelector, searchSelector, userSelector } from '../../../redux/selectors';
 import generalSlice, { changeMailReadStateApi } from '../../../redux/generalSlice';
-import { FOLDER_IDS, MAX_SEARCH_RESULT_QUANTITY } from '../../../constants';
+import { FOLDER_IDS } from '../../../constants';
 import { useNavigate } from 'react-router-dom';
 
 export function Search() {
@@ -10,6 +10,7 @@ export function Search() {
     const search = useSelector(searchSelector);
     const user = useSelector(userSelector);
     const folder = useSelector(folderSelector);
+    const config = useSelector(configSelector);
 
     function handleSearchKeywordChange(keyword) {
         dispatch(generalSlice.actions.search(keyword));
@@ -48,7 +49,7 @@ export function Search() {
                             <b className="m-0 p-0">{`Found ${search.results.length} mail(s)`}</b>
                             <br/>
                             <span className="m-0 p-0 fw-lighter fs-5px">
-                                {`Only search ${MAX_SEARCH_RESULT_QUANTITY} first matching results`}
+                                {`Only search ${config.maxSearchResult} first matching results`}
                             </span>
                         </li>
                     </ul>
