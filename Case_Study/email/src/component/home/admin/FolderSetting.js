@@ -58,7 +58,7 @@ export function FolderSetting() {
                         ? <li key={item.id} className="list-group-item">
                             <i className={`fa-solid ${FOLDER_ICONS[item.id]} text-meow ps-3 pe-3`} />
                             <input key={item.id} value={item.name} onChange={e => changeFolderName(e.target.value, item.id)}/>
-                            <button className="btn" onClick={() => unselectFolder(item.id)}><i className="fa-solid fa-circle-xmark  text-meow"></i></button>
+                            <button className="btn" onClick={() => unselectFolder(item.id)}><i className="fa-solid fa-circle-xmark text-meow"></i></button>
                         </li>
                         : <li
                             key={item.id}

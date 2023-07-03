@@ -1,6 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { composeSelector, userSelector } from '../../../redux/selectors';
 import generalSlice, { saveMailDraftApi, sendMailApi } from '../../../redux/generalSlice';
+import toastr from 'toastr';
+import { EMAIL_REGEX } from '../../../constants';
 
 export default function ComposeEmail() {
     const user = useSelector(userSelector);
@@ -21,6 +23,17 @@ export default function ComposeEmail() {
     }
     function sendMail(e) {
         e.preventDefault();
+
+        if (!EMAIL_REGEX.test(compose.toAddress)) {
+            toastr["error"]("'To' is not valid email format!");
+            return;
+        }
+
+        if (!compose.toAddress || !compose.title) {
+            toastr["error"]("'To' and 'Title' can not be empty!");
+            return;
+        }
+
         dispatch(sendMailApi({
             dataUrl: user.dataUrl,
             fromAddress: user.email,

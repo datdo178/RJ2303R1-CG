@@ -154,16 +154,7 @@ const generalSlice = createSlice({
                 state.isLoading = false
             })
             .addCase(loginWithCookieApi.rejected, state => { state.isLoading = false })
-            // // switchFolder
-            // .addCase(switchFolderApi.pending, state => { state.isLoading = true })
-            // .addCase(switchFolderApi.fulfilled, (state, action) => {
-            //     state.isLoading = false;
-            //     state.folder.selectedId = action.payload.folderId;
-            //     state.mail.list = action.payload.mailList;
-            // })
-            // .addCase(switchFolderApi.rejected, state => { state.isLoading = false })
             // changeMailReadState
-            // .addCase(changeMailReadStateApi.pending, state => { state.isLoading = true })
             .addCase(changeMailReadStateApi.fulfilled, (state, action) => {
                 let index = state.mail.list.findIndex(item => item.id === action.payload.mail.id);
                 state.mail.list[index] = action.payload.mail;
@@ -173,7 +164,10 @@ const generalSlice = createSlice({
 
                 state.isLoading = false;
             })
-            // .addCase(changeMailReadStateApi.rejected, state => { state.isLoading = false })
+            .addCase(changeMailReadStateApi.rejected, state => {
+                toastr["error"]("Error happens when changing mail status!");
+                state.isLoading = false;
+            })
             // deleteMail
             .addCase(deleteMailApi.pending, state => { state.isLoading = true })
             .addCase(deleteMailApi.fulfilled, (state, action) => {
@@ -195,7 +189,6 @@ const generalSlice = createSlice({
                 }
 
                 toastr["success"]("Deleted mails!");
-
                 state.isLoading = false;
             })
             .addCase(deleteMailApi.rejected, state => { state.isLoading = false })
@@ -391,37 +384,6 @@ export const loginWithCookieApi = createAsyncThunk(
             filterByFolder: filterByFolder,
             config: config
         };
-    }
-)
-
-export const switchFolderApi = createAsyncThunk(
-    'folder/switch',
-    async ({ dataUrl, folderId, folderList }) => {
-        let mailList = [];
-
-        if (folderId === FOLDER_IDS.STAR) {
-            for (const folder of folderList) {
-                const res = await axios.get(sprintf(URLS.EMAILS, dataUrl, folder.id));
-                mailList.push(...res.data.filter(mail => mail.isFlagged));
-            }
-        } else {
-            const res = await axios.get(sprintf(URLS.EMAILS, dataUrl, folderId));
-            mailList = res.data;
-        }
-
-        return {
-            folderId: folderId,
-            mailList: mailList
-        }
-    }
-)
-
-export const getMailListApi = createAsyncThunk(
-    'mail/getList',
-    async (dataUrl, folderId) => {
-        if (dataUrl && folderId) {
-            const res = await axios.get(sprintf(URLS.EMAILS, dataUrl, folderId));
-        }
     }
 )
 

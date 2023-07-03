@@ -57,7 +57,7 @@ export function Search() {
                         {search.results.map(item =>
                             <li
                                 key={item.id}
-                                className="list-group-item hover-meow"
+                                className={`list-group-item hover-meow ${item.isRead ? '' : 'fw-bold'}`}
                                 onClick={() => openMail(item)}
                             >
                                 <span className="badge bg-personal">

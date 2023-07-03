@@ -259,4 +259,5 @@ body {
 
 .toast-error {
   background-color: #bd632f !important;
+  opacity: 1!important;
 }
